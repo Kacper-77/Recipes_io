@@ -1,6 +1,8 @@
 import streamlit as st
-from db import get_recipes, save_recipe, delete_recipe
+from db import get_recipes, save_recipe, delete_recipe, init_db
 import time
+
+init_db()
 
 st.title(":orange[Twoje przepisy] 🍜")
 
