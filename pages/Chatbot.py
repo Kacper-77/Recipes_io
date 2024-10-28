@@ -9,94 +9,102 @@ import time
 st.set_page_config(page_title="Chatbot", layout="centered")
 st.title(":green[Chatbot] 🍽️")
 
+# Wprowadzenie klucza API OpenAI
+if "api_key" not in st.session_state:
+    st.session_state.api_key = ""
 
-# Ładowanie zmiennych środowiskowych
-load_dotenv()
+api_key = st.text_input("Wprowadź swój klucz API OpenAI", type="password", value=st.session_state.api_key)
+
+if api_key:
+    st.session_state.api_key = api_key
+
+    # Ładowanie zmiennych środowiskowych
+    load_dotenv()
 
 # Inicjalizacja klienta OpenAI
-openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    openai_client = OpenAI(api_key=st.session_state.api_key)
 
+    @observe
+    def get_chatbot_reply(user_prompt, memory):
+        messages = [
+            {
+                "role": "system",
+                "content": """
+                    Jesteś ekspertem do spraw dietetyki,
+                    przepisów i wszystkiego co z tym związane.
+                    Wyliczaj makro dla każdego z dań i podawaj w przybliżeniu
+                    kaloryczność. Odpowiadaj na pytania użytkownika w sposób zrozumiały.
+                """
+            },
+        ]
+        for message in memory:
+            messages.append({"role": message["role"], "content": message["content"]})
 
-@observe
-def get_chatbot_reply(user_prompt, memory):
-    messages = [
-        {
-            "role": "system",
-            "content": """
-                Jesteś ekspertem do spraw dietetyki,
-                przepisów i wszystkiego co z tym związane.
-                Wyliczaj makro dla każdego z dań i podawaj w przybliżeniu
-                kaloryczność. Odpowiadaj na pytania użytkownika w sposób zrozumiały.
-            """
-        },
-    ]
-    for message in memory:
-        messages.append({"role": message["role"], "content": message["content"]})
+        messages.append({"role": "user", "content": user_prompt})
+        return openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            stream=True,
+        )                  
 
-    messages.append({"role": "user", "content": user_prompt})
-    return openai_client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        stream=True,
-    )                  
+    # Inicjalizacja stanu sesji dla konwersacji
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
 
+    if "chatbot_reply" not in st.session_state:
+        st.session_state["chatbot_reply"] = ""
 
-# Inicjalizacja stanu sesji dla konwersacji
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
+    # Przechowujemy stan widoczności sekcji zapisu
+    if "show_save_section" not in st.session_state:
+        st.session_state["show_save_section"] = False 
 
-if "chatbot_reply" not in st.session_state:
-    st.session_state["chatbot_reply"] = ""
+    st.header(":orange[Aktualna konwersacja] 💬")
 
-# Przechowujemy stan widoczności sekcji zapisu
-if "show_save_section" not in st.session_state:
-    st.session_state["show_save_section"] = False 
+    for message in st.session_state["messages"]:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-st.header(":orange[Aktualna konwersacja] 💬")
+    # Sekcja do wpisania nowego promptu przez użytkownika
+    prompt = st.chat_input("W czym mogę ci pomóc?")
 
-for message in st.session_state["messages"]:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    if prompt:
+        # Dodanie wiadomości użytkownika do sesji
+        user_message = {"role": "user", "content": prompt}
+        with st.chat_message("user"):
+            st.markdown(user_message["content"])
 
-# Sekcja do wpisania nowego promptu przez użytkownika
-prompt = st.chat_input("W czym mogę ci pomóc?")
+        st.session_state["messages"].append(user_message)
 
-if prompt:
-    # Dodanie wiadomości użytkownika do sesji
-    user_message = {"role": "user", "content": prompt}
-    with st.chat_message("user"):
-        st.markdown(user_message["content"])
+        chatbot_response = get_chatbot_reply(prompt, memory=st.session_state["messages"][-10:])
+        with st.chat_message("assistant"):
+            assistant_message = st.write_stream(chatbot_response)
+            st.session_state["chatbot_reply"] = assistant_message
 
-    st.session_state["messages"].append(user_message)
+        st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
 
-    chatbot_response = get_chatbot_reply(prompt, memory=st.session_state["messages"][-10:])
-    with st.chat_message("assistant"):
-        assistant_message = st.write_stream(chatbot_response)
-        st.session_state["chatbot_reply"] = assistant_message
+        # Automatyczne zapisywanie konwersacji w bazie danych
+        save_conversation(f"Konwersacja {len(st.session_state['messages']) // 2}", st.session_state["messages"])
 
-    st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
+    # Jeżeli chatbot odpowiedział, pokaż możliwość zapisania przepisu lub diety (ale nie porady)
+    if st.session_state["chatbot_reply"]:
+        if st.button("🍕"):
+            st.session_state["show_save_section"] = not st.session_state["show_save_section"]
 
-    # Automatyczne zapisywanie konwersacji w bazie danych
-    save_conversation(f"Konwersacja {len(st.session_state['messages']) // 2}", st.session_state["messages"])
+        if st.session_state["show_save_section"]:
+            st.subheader("Zapisz przepis lub dietę")
+            recipe_name = st.text_input("Podaj nazwę przepisu/diety", key="recipe_name_input")
 
-# Jeżeli chatbot odpowiedział, pokaż możliwość zapisania przepisu lub diety (ale nie porady)
-if st.session_state["chatbot_reply"]:
-    if st.button("🍕"):
-        st.session_state["show_save_section"] = not st.session_state["show_save_section"]
-
-    if st.session_state["show_save_section"]:
-        st.subheader("Zapisz przepis lub dietę")
-        recipe_name = st.text_input("Podaj nazwę przepisu/diety", key="recipe_name_input")
-
-        if st.button("Zapisz"):
-            if recipe_name:
-                save_recipe(recipe_name, st.session_state["chatbot_reply"])
-                info = st.toast("Zapisano! 🎊")
-                time.sleep(2)
-                info.empty()
-                st.session_state["chatbot_reply"] = ""
-            else:
-                st.warning("Proszę podać nazwę przepisu lub diety przed zapisaniem.")
+            if st.button("Zapisz"):
+                if recipe_name:
+                    save_recipe(recipe_name, st.session_state["chatbot_reply"])
+                    info = st.toast("Zapisano! 🎊")
+                    time.sleep(2)
+                    info.empty()
+                    st.session_state["chatbot_reply"] = ""
+                else:
+                    st.warning("Proszę podać nazwę przepisu lub diety przed zapisaniem.")
+else:
+    st.warning("Proszę wprowadzić klucz API, aby korzystać z aplikacji.")
 
 with st.sidebar:
     st.write("Więcej informacji:")
