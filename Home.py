@@ -11,7 +11,7 @@ st.write("""
          
  Nasza aplikacja jest od ludzi dla ludzi, chcemy aby każdy mógł z niej korzystać
   z tego tytułu postaraliśmy się aby wszystko było jak najbardziej intucyjne.
-         
+        
  Dlaczego akurat taka aplikacja? Odpowiedź jest prosta autor tej aplikacji sam cierpi na refluks
   i postanowił on stworzyć coś co będzie w stanie pomóc ludziom z podobnymi dolegliwościami i nie tylko,
   poza tym autor aplikacji jest zwolennikiem zdrowego trybu życia i jest to
@@ -22,17 +22,17 @@ Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
         
 **Instrukcja korzystania z aplikacji**:
 - Aplikacja jest podzielona na dwie głowne sekcję chatbot oraz przepisy
-- Aby móc korzystać z chatbota czyli naszego specjalisty do spraw żywieniowych
-  wystarczy **podać klucz API**
-- Strona :orange[**przepisy**] to strona w której można zapisać sobie każdy dowolny przepis
-  np. wygenerowany przez naszego :green[**specljalistę**]
+- Strona :green[**chatbot**] to nasz specjalista który pomoże ci z każdym problemem.
+- Strona :orange[**przepisy**] to strona w której można zapisać sobie każdy dowolny przepis lub dietę
+  np. wygenerowany przez naszego :green[**specljalistę**]. Wystarczy kliknąć 🍕 pod wiadomością od chatbota.
         
 To tyle życzymy :red[**SMACZNEGO**]!
 """)
 
-st.write("""
-Masz pomysł na usprawnienie naszej aplikacji? Może ci czegoś brakuję?
-         
-**Napisz do nas**: example.email@recipes.io
-"""
-)
+with st.sidebar:
+    st.write("Więcej informacji:")
+    st.link_button("Polityka prywatnośći", "https://recipes-io-assets.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
+    st.link_button("Regulamin", "https://recipes-io-assets.fra1.cdn.digitaloceanspaces.com/regulations.pdf")
+    st.write("Kontakt: ks.kontaktowy7@gmail.com")
+    st.write("Podoba ci się aplikacja? wesprzyj nas link poniżej:")
+    st.link_button("🥰", "https://buymeacoffee.com/kacperszaruga", use_container_width=True)

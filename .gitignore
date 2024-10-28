@@ -1,3 +1,5 @@
 conversations.db
+info.txt
 __pycache__
 .env
+secrets.toml
