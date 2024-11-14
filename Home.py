@@ -42,7 +42,6 @@ Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
 To tyle życzymy :red[**SMACZNEGO**]!
 """)
 
-
 try:
     add_auth(
         required=False,
