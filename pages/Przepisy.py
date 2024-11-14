@@ -56,4 +56,3 @@ if st.session_state.get('email'):
                     st.rerun()
     else:
         st.write("Nie masz jeszcze żadnych przepisów.")
-
