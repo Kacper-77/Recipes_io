@@ -19,14 +19,6 @@ with st.sidebar:
     if st.session_state.get('email'):
         st.write(f"Zalogowano jako: {st.session_state['email']}")
 
-try:
-    add_auth(
-        required=False,
-        login_sidebar=False,
-    )
-except KeyError:
-    pass
-
 st.write("""
 **Krótko** o **nas**:
         
@@ -43,6 +35,17 @@ Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
         
 **Instrukcja korzystania z aplikacji**:
 - Zaloguj się przez swoje konto Google
+""")
+
+try:
+    add_auth(
+        required=False,
+        login_sidebar=False,
+    )
+except KeyError:
+    pass
+
+st.write("""
 - Aplikacja jest podzielona na dwie głowne sekcję chatbot oraz przepisy
 - Strona :green[**chatbot**] to nasz specjalista który pomoże ci z każdym problemem.
 - Strona :orange[**przepisy**] to strona w której można zapisać sobie każdy dowolny przepis lub dietę
