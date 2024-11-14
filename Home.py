@@ -18,7 +18,7 @@ with st.sidebar:
 
     if st.session_state.get('email'):
         st.write(f"Zalogowano jako: {st.session_state['email']}")
-        
+
 st.write("""
 **Krótko** o **nas**:
        
