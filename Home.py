@@ -24,7 +24,7 @@ st.write("""
        
  Nasza aplikacja jest od ludzi dla ludzi, chcemy aby każdy mógł z niej korzystać
   z tego tytułu postaraliśmy się aby wszystko było jak najbardziej intucyjne.
-        
+       
  Dlaczego akurat taka aplikacja? Odpowiedź jest prosta autor tej aplikacji sam cierpi na refluks
   i postanowił on stworzyć coś co będzie w stanie pomóc ludziom z podobnymi dolegliwościami i nie tylko,
   poza tym autor aplikacji jest zwolennikiem zdrowego trybu życia i jest to
