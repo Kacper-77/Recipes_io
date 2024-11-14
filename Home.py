@@ -33,22 +33,9 @@ st.write("""
 Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
   zaczynając od pełnej diety idąc poprzez porady żywieniowe kończąc na braku pomysłu na obiad.
 """)
-c1, c2 = st.columns(2)
-with c1:
-   st.write("""
-  **Instrukcja korzystania z aplikacji**:
-  - Zaloguj się przez swoje konto Google
-""")
-with c2:
-  try:
-    add_auth(
-        required=False,
-        login_sidebar=False,
-    )
-  except KeyError:
-    pass
-
 st.write("""
+**Instrukcja korzystania z aplikacji**:
+- Zaloguj się przez swoje konto Google
 - Aplikacja jest podzielona na dwie głowne sekcję chatbot oraz przepisy
 - Strona :green[**chatbot**] to nasz specjalista który pomoże ci z każdym problemem.
 - Strona :orange[**przepisy**] to strona w której można zapisać sobie każdy dowolny przepis lub dietę
@@ -56,5 +43,13 @@ st.write("""
         
 To tyle życzymy :red[**SMACZNEGO**]!
 """)
+
+try:
+    add_auth(
+        required=False,
+        login_sidebar=False,
+    )
+except KeyError:
+    pass
 
 
