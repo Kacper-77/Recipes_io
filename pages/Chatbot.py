@@ -5,9 +5,6 @@ from dotenv import load_dotenv
 from db import save_conversation, save_recipe
 import time
 from st_paywall import add_auth
-from config import get_config
-
-get_config()
 
 # Inicjalizacja konfiguracji strony
 st.set_page_config(page_title="Recipes.io", layout="centered")

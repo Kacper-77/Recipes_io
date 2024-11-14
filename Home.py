@@ -1,8 +1,5 @@
 import streamlit as st
 from st_paywall import add_auth
-from config import get_config
-
-get_config()
 
 # Ustawienia dla strony głównej
 st.set_page_config(page_title="Recipes.io", layout="centered")
