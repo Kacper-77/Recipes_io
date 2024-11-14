@@ -2,6 +2,9 @@ import streamlit as st
 from db import get_recipes, save_recipe, delete_recipe, init_db
 import time
 from st_paywall import add_auth
+from config import get_config
+
+get_config()
 
 init_db()
 
