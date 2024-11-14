@@ -32,8 +32,6 @@ st.write("""
          
 Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
   zaczynając od pełnej diety idąc poprzez porady żywieniowe kończąc na braku pomysłu na obiad.
-""")
-st.write("""
 **Instrukcja korzystania z aplikacji**:
 - Zaloguj się przez swoje konto Google
 - Aplikacja jest podzielona na dwie głowne sekcję chatbot oraz przepisy
