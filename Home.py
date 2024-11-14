@@ -24,7 +24,7 @@ with st.sidebar:
 
 st.write("""
 **Krótko** o **nas**:
-        
+       
  Nasza aplikacja jest od ludzi dla ludzi, chcemy aby każdy mógł z niej korzystać
   z tego tytułu postaraliśmy się aby wszystko było jak najbardziej intucyjne.
         
