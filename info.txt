@@ -1,3 +1,2 @@
-https://recipes-io-assets.fra1.cdn.digitaloceanspaces.com/logo.png
-https://recipes-io-assets.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf
-https://recipes-io-assets.fra1.cdn.digitaloceanspaces.com/regulations.pdf
+https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf
+https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/regulations.pdf
