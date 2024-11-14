@@ -32,17 +32,20 @@ st.write("""
          
 Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
   zaczynając od pełnej diety idąc poprzez porady żywieniowe kończąc na braku pomysłu na obiad.
-        
-**Instrukcja korzystania z aplikacji**:
-- Zaloguj się przez swoje konto Google
 """)
-
-try:
+c1, c2 = st.columns(2)
+with c1:
+   st.write("""
+  **Instrukcja korzystania z aplikacji**:
+  - Zaloguj się przez swoje konto Google
+""")
+with c2:
+  try:
     add_auth(
         required=False,
         login_sidebar=False,
     )
-except KeyError:
+  except KeyError:
     pass
 
 st.write("""
