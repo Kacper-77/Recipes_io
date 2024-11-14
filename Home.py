@@ -4,6 +4,10 @@ from st_paywall import add_auth
 # Ustawienia dla strony głównej
 st.set_page_config(page_title="Recipes.io", layout="centered")
 
+# Strona główna
+st.title("Witamy w Recipes.:green[i]:orange[o] 👨🏻‍🍳")
+st.subheader(":red[Dziękujemy, że postanowiłeś/aś nam zaufać!]")
+
 with st.sidebar:
     st.write("Więcej informacji:")
     st.link_button("Polityka prywatnośći", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
@@ -23,9 +27,6 @@ try:
 except KeyError:
     pass
 
-# Strona główna
-st.title("Witamy w Recipes.:green[i]:orange[o] 👨🏻‍🍳")
-st.subheader(":red[Dziękujemy, że postanowiłeś/aś nam zaufać!]")
 st.write("""
 **Krótko** o **nas**:
         
@@ -49,3 +50,5 @@ Ale nie tylko chorzy mogą z niej korzystać, bo może dosłownie każdy,
         
 To tyle życzymy :red[**SMACZNEGO**]!
 """)
+
+
