@@ -43,7 +43,6 @@ st.write("""
         
 To tyle życzymy :red[**SMACZNEGO**]!
 """)
-
 try:
     add_auth(
         required=False,
