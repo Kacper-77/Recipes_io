@@ -5,58 +5,10 @@ from dotenv import load_dotenv
 from db import save_conversation, save_recipe
 import time
 from st_paywall import add_auth
-import psycopg2
-import pandas as pd
-from datetime import datetime, timezone
+from db import get_current_month_usage_df, get_connection, insert_usage
 
 
-@st.cache_resource
-def get_connection():
-    return psycopg2.connect(
-        dbname=st.secrets["database"],
-        user=st.secrets["username"],
-        password=st.secrets["password"],
-        host=st.secrets["host"],
-        port=st.secrets["port"],
-        sslmode=st.secrets["sslmode"]
-    )
-
-
-with get_connection() as conn:
-    with conn.cursor() as cur:
-        cur.execute("""
-CREATE TABLE IF NOT EXISTS usages (
-    id SERIAL PRIMARY KEY,
-    google_user_email VARCHAR(255),
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    output_tokens INTEGER,
-    input_tokens INTEGER,
-    input_text TEXT
-)
-        """)
-        conn.commit()
-
-
-def insert_usage(email, output_tokens, input_tokens, input_text):
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO usages (google_user_email, output_tokens, input_tokens, input_text) VALUES (%s, %s, %s, %s)
-            """, (email, output_tokens, input_tokens, input_text))
-            conn.commit()
-
-
-def get_current_month_usage_df(email):
-    with get_connection() as conn:
-        now = datetime.now(timezone.utc)
-        start_date = datetime(now.year, now.month, 1)
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM usages WHERE google_user_email = %s AND created_at >= %s", (email, start_date))
-            rows = cur.fetchall()
-            columns = [desc[0] for desc in cur.description]
-            df_usage = pd.DataFrame(rows, columns=columns)
-
-    return df_usage
+get_connection()
 
 
 # Inicjalizacja konfiguracji strony
