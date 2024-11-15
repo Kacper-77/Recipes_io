@@ -2,5 +2,5 @@ streamlit
 langfuse
 python-dotenv
 openai
-st_paywall
 psycopg2
+st_paywall
