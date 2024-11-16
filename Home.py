@@ -1,6 +1,6 @@
+
 import streamlit as st
 from st_paywall import add_auth
-from db import get_current_month_usage_df
 
 # Ustawienia dla strony głównej
 st.set_page_config(page_title="Recipes.io", layout="centered")
@@ -19,14 +19,6 @@ with st.sidebar:
 
     if st.session_state.get('email'):
         st.write(f"Zalogowano jako: {st.session_state['email']}")
-
-        usage_df = get_current_month_usage_df(st.session_state['email'])
-        st.write("W tym miesiącu użyłeś")
-        c0, c1 = st.columns([1, 1])
-        with c0:
-            st.metric("Input tokenów", usage_df['input_tokens'].sum())
-        with c1:
-            st.metric("Output tokenów", usage_df['output_tokens'].sum())
 
 st.write("""
 **Krótko** o **nas**:

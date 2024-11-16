@@ -5,11 +5,6 @@ from dotenv import load_dotenv
 from db import save_conversation, save_recipe
 import time
 from st_paywall import add_auth
-from db import get_current_month_usage_df, get_connection, insert_usage
-
-
-get_connection()
-
 
 # Inicjalizacja konfiguracji strony
 st.set_page_config(page_title="Recipes.io", layout="centered")
@@ -25,14 +20,6 @@ with st.sidebar:
 
     if st.session_state.get('email'):
         st.write(f"Zalogowano jako: {st.session_state['email']}")
-
-        usage_df = get_current_month_usage_df(st.session_state['email'])
-        st.write("W tym miesiącu użyłeś")
-        c0, c1 = st.columns([1, 1])
-        with c0:
-            st.metric("Input tokenów", usage_df['input_tokens'].sum())
-        with c1:
-            st.metric("Output tokenów", usage_df['output_tokens'].sum())
 
 try:
     add_auth(
@@ -75,26 +62,12 @@ if st.session_state.get('email'):
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
-            
-            # Wysyłanie zapytania do OpenAI
-            response = openai_client.chat.completions.create(
+            return openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 stream=True,
-            )
-            
-            usage = response["usage"]
-            
-            # Zapisanie użycia w bazie danych
-            insert_usage(
-                email=st.session_state['email'],
-                output_tokens=usage['completion_tokens'],
-                input_tokens=usage['prompt_tokens'],
-                input_text=user_prompt,
-            )
-            
-            return response
-                  
+            )                  
+
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
             st.session_state["messages"] = []
@@ -115,17 +88,15 @@ if st.session_state.get('email'):
         # Sekcja do wpisania nowego promptu przez użytkownika
         prompt = st.chat_input("W czym mogę ci pomóc?")
 
-        # Sekcja do obsługi promptu użytkownika
         if prompt:
+            # Dodanie wiadomości użytkownika do sesji
             user_message = {"role": "user", "content": prompt}
             with st.chat_message("user"):
                 st.markdown(user_message["content"])
 
             st.session_state["messages"].append(user_message)
 
-            # Otrzymanie odpowiedzi chatbota i zapisanie zużycia
             chatbot_response = get_chatbot_reply(prompt, memory=st.session_state["messages"][-10:])
-            
             with st.chat_message("assistant"):
                 assistant_message = st.write_stream(chatbot_response)
                 st.session_state["chatbot_reply"] = assistant_message

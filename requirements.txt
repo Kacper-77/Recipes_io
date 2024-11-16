@@ -2,5 +2,4 @@ streamlit
 langfuse
 python-dotenv
 openai
-psycopg2-binary
 st_paywall
