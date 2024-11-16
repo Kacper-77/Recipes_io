@@ -3,3 +3,4 @@ langfuse
 python-dotenv
 openai
 st_paywall
+psycopg2

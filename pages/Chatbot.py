@@ -21,6 +21,10 @@ with st.sidebar:
     if st.session_state.get('email'):
         st.write(f"Zalogowano jako: {st.session_state['email']}")
 
+    # Display token usage
+    if "token_usage" in st.session_state:
+        st.write(f"Zużycie tokenów: {st.session_state['token_usage']}")
+
 try:
     add_auth(
         required=False,
@@ -62,11 +66,18 @@ if st.session_state.get('email'):
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
-            return openai_client.chat.completions.create(
+            response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 stream=True,
-            )                  
+            )
+
+            # Calculate token usage
+            input_tokens = sum(len(m["content"].split()) for m in messages)
+            output_tokens = len(response["choices"][0]["message"]["content"].split())
+            st.session_state["token_usage"] = f"Input: {input_tokens}, Output: {output_tokens}"
+
+            return response
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
