@@ -99,21 +99,26 @@ if st.session_state.get('email'):
             messages.append({"role": "user", "content": user_prompt})
 
             response = openai_client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4",
                 messages=messages,
                 stream=True,
             ) 
+
+            # Obsługuje przypadek, gdy 'usage' jest obecne lub nie w odpowiedzi
             usage = {}
-            if response.usage:
+            if hasattr(response, 'usage'):  # Sprawdzamy, czy odpowiedź zawiera dane o zużyciu
                 usage = {
                     "completion_tokens": response.usage.completion_tokens,
                     "prompt_tokens": response.usage.prompt_tokens,
                     "total_tokens": response.usage.total_tokens,
                 }
+            else:
+                st.warning("Brak danych o zużyciu tokenów w odpowiedzi.")
+
             insert_usage(
                 email=st.session_state['email'],
-                output_tokens=usage['completion_tokens'],
-                input_tokens=usage['prompt_tokens'],
+                output_tokens=usage.get('completion_tokens', 0),
+                input_tokens=usage.get('prompt_tokens', 0),
                 input_text=user_prompt           
             )
 
