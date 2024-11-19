@@ -2,11 +2,10 @@ import streamlit as st
 from langfuse.openai import OpenAI
 from langfuse.decorators import observe
 from dotenv import load_dotenv
-from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df, get_connection
+from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df
 import time
 from st_paywall import add_auth
 
-get_connection()
 
 # Inicjalizacja konfiguracji strony
 st.set_page_config(page_title="Recipes.io", layout="centered")
