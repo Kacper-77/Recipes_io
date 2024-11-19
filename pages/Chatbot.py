@@ -5,6 +5,19 @@ from dotenv import load_dotenv
 from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df
 import time
 from st_paywall import add_auth
+import psycopg2
+
+
+@st.cache_resource
+def get_connection():
+    return psycopg2.connect(
+        dbname=st.secrets["database"],
+        user=st.secrets["username"],
+        password=st.secrets["password"],
+        host=st.secrets["host"],
+        port=st.secrets["port"],
+        sslmode=st.secrets["sslmode"]
+    )
 
 
 # Inicjalizacja konfiguracji strony

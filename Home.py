@@ -1,20 +1,6 @@
 import streamlit as st
 from st_paywall import add_auth
 from db import get_current_month_usage_df
-import psycopg2
-
-
-@st.cache_resource
-def get_connection():
-    return psycopg2.connect(
-        dbname=st.secrets["database"],
-        user=st.secrets["username"],
-        password=st.secrets["password"],
-        host=st.secrets["host"],
-        port=st.secrets["port"],
-        sslmode=st.secrets["sslmode"]
-    )
-
 
 # Ustawienia dla strony głównej
 st.set_page_config(page_title="Recipes.io", layout="centered")
