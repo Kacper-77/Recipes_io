@@ -7,7 +7,6 @@ import time
 from st_paywall import add_auth
 import psycopg2
 
-
 @st.cache_resource
 def get_connection():
     return psycopg2.connect(
@@ -18,7 +17,6 @@ def get_connection():
         port=st.secrets["port"],
         sslmode=st.secrets["sslmode"]
     )
-
 
 with get_connection() as conn:
     with conn.cursor() as cur:
@@ -33,7 +31,6 @@ CREATE TABLE IF NOT EXISTS usages (
 )
         """)
         conn.commit()
-
 
 st.title(":green[Chatbot] 🍽️")
 
@@ -99,30 +96,39 @@ if st.session_state.get('email'):
             messages.append({"role": "user", "content": user_prompt})
 
             response = openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o",
                 messages=messages,
                 stream=True,
-            ) 
-
-            # Obsługuje przypadek, gdy 'usage' jest obecne lub nie w odpowiedzi
-            usage = {}
-            if hasattr(response, 'usage'):  # Sprawdzamy, czy odpowiedź zawiera dane o zużyciu
-                usage = {
-                    "completion_tokens": response.usage.completion_tokens,
-                    "prompt_tokens": response.usage.prompt_tokens,
-                    "total_tokens": response.usage.total_tokens,
-                }
-            else:
-                st.warning("Brak danych o zużyciu tokenów w odpowiedzi.")
-
-            insert_usage(
-                email=st.session_state['email'],
-                output_tokens=usage.get('completion_tokens', 0),
-                input_tokens=usage.get('prompt_tokens', 0),
-                input_text=user_prompt           
             )
 
-            return response              
+            # Sprawdzenie, czy odpowiedź zawiera dane o zużyciu tokenów
+            usage = {
+                "completion_tokens": 0,
+                "prompt_tokens": 0,
+                "total_tokens": 0,
+            }
+            if hasattr(response, "usage") and response.usage:
+                usage = {
+                    "completion_tokens": response.usage.get("completion_tokens", 0),
+                    "prompt_tokens": response.usage.get("prompt_tokens", 0),
+                    "total_tokens": response.usage.get("total_tokens", 0),
+                }
+
+                # Zapisanie danych o zużyciu do bazy danych
+                insert_usage(
+                    email=st.session_state['email'],
+                    output_tokens=usage['completion_tokens'],
+                    input_tokens=usage['prompt_tokens'],
+                    input_text=user_prompt
+                )
+
+                # Wyświetlenie danych o zużyciu tokenów
+                st.write(f"Zużycie tokenów:")
+                st.write(f"- Input tokens: {usage['prompt_tokens']}")
+                st.write(f"- Output tokens: {usage['completion_tokens']}")
+                st.write(f"- Total tokens: {usage['total_tokens']}")
+
+            return response
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
@@ -133,7 +139,7 @@ if st.session_state.get('email'):
 
         # Przechowujemy stan widoczności sekcji zapisu
         if "show_save_section" not in st.session_state:
-            st.session_state["show_save_section"] = False 
+            st.session_state["show_save_section"] = False
 
         st.header(":orange[Aktualna konwersacja] 💬")
 
