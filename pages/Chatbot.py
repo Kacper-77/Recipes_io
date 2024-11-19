@@ -7,6 +7,7 @@ import time
 from st_paywall import add_auth
 import psycopg2
 
+
 @st.cache_resource
 def get_connection():
     return psycopg2.connect(
@@ -17,6 +18,7 @@ def get_connection():
         port=st.secrets["port"],
         sslmode=st.secrets["sslmode"]
     )
+
 
 with get_connection() as conn:
     with conn.cursor() as cur:
@@ -90,45 +92,49 @@ if st.session_state.get('email'):
                     """
                 },
             ]
+            
             for message in memory:
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
 
+            # Zmienna do przechowywania zużycia tokenów
+            usage = {
+                "completion_tokens": 0,
+                "prompt_tokens": 0,
+                "total_tokens": 0
+            }
+            
             response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 stream=True,
             )
 
-            # Sprawdzenie, czy odpowiedź zawiera dane o zużyciu tokenów
-            usage = {
-                "completion_tokens": 0,
-                "prompt_tokens": 0,
-                "total_tokens": 0,
-            }
-            if hasattr(response, "usage") and response.usage:
-                usage = {
-                    "completion_tokens": response.usage.get("completion_tokens", 0),
-                    "prompt_tokens": response.usage.get("prompt_tokens", 0),
-                    "total_tokens": response.usage.get("total_tokens", 0),
-                }
+            # Iterowanie przez odpowiedź strumieniowaną
+            assistant_message = ""
+            for chunk in response:
+                # Wydobycie treści odpowiedzi
+                if "choices" in chunk:
+                    for choice in chunk["choices"]:
+                        if "message" in choice:
+                            assistant_message += choice["message"]["content"]
 
-                # Zapisanie danych o zużyciu do bazy danych
-                insert_usage(
-                    email=st.session_state['email'],
-                    output_tokens=usage['completion_tokens'],
-                    input_tokens=usage['prompt_tokens'],
-                    input_text=user_prompt
-                )
+                # Zbieranie danych o zużyciu tokenów
+                if "usage" in chunk:
+                    usage["completion_tokens"] += chunk["usage"].get("completion_tokens", 0)
+                    usage["prompt_tokens"] += chunk["usage"].get("prompt_tokens", 0)
+                    usage["total_tokens"] += chunk["usage"].get("total_tokens", 0)
 
-                # Wyświetlenie danych o zużyciu tokenów
-                st.write(f"Zużycie tokenów:")
-                st.write(f"- Input tokens: {usage['prompt_tokens']}")
-                st.write(f"- Output tokens: {usage['completion_tokens']}")
-                st.write(f"- Total tokens: {usage['total_tokens']}")
+            # Zapisanie zużycia tokenów do bazy danych
+            insert_usage(
+                email=st.session_state['email'],
+                output_tokens=usage['completion_tokens'],
+                input_tokens=usage['prompt_tokens'],
+                input_text=user_prompt,
+            )
 
-            return response
+            return assistant_message
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
