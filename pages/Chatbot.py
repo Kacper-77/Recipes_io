@@ -166,7 +166,7 @@ if st.session_state.get('email'):
 
             chatbot_response = get_chatbot_reply(prompt, memory=st.session_state["messages"][-10:])
             with st.chat_message("assistant"):
-                assistant_message = st.write_stream(chatbot_response)
+                assistant_message = st.write(chatbot_response)
                 st.session_state["chatbot_reply"] = assistant_message
 
             st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
