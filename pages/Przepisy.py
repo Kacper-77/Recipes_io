@@ -1,5 +1,5 @@
 import streamlit as st
-from db import get_recipes, save_recipe, delete_recipe, init_db
+from db import get_recipes, save_recipe, delete_recipe, init_db, get_current_month_usage_df
 import time
 from st_paywall import add_auth
 
@@ -9,15 +9,23 @@ st.set_page_config(page_title="Recipes.io", layout="centered")
 st.title(":orange[Twoje przepisy] 🍜")
 
 with st.sidebar:
+    if st.session_state.get('email'):
+        st.write(f"Zalogowano jako: {st.session_state['email']}")
+
+        usage_df = get_current_month_usage_df(st.session_state['email'])
+        st.write("Obecne zużycie")
+        c0, c1 = st.columns([1, 1])
+        with c0:
+            st.metric("Input tokenów", usage_df['input_tokens'].sum())
+        with c1:
+            st.metric("Output tokenów", usage_df['output_tokens'].sum())
+
     st.write("Więcej informacji:")
-    st.link_button("Polityka prywatnośći", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
+    st.link_button("Polityka prywatności", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
     st.link_button("Regulamin", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/regulations.pdf")
     st.write("Kontakt: ks.kontaktowy7@gmail.com")
     st.write("Podoba ci się aplikacja? wesprzyj nas link poniżej:")
     st.link_button("🥰", "https://buymeacoffee.com/kacperszaruga", use_container_width=True)
-
-    if st.session_state.get('email'):
-        st.write(f"Zalogowano jako: {st.session_state['email']}")
 
 try:
     add_auth(
@@ -26,6 +34,7 @@ try:
     )
 except KeyError:
     pass
+
 if st.session_state.get('email'):
     # Formularz dodawania nowego przepisu ręcznie
     recipe_name = st.text_input("Nazwa przepisu")

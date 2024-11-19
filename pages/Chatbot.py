@@ -2,28 +2,34 @@ import streamlit as st
 from langfuse.openai import OpenAI
 from langfuse.decorators import observe
 from dotenv import load_dotenv
-from db import save_conversation, save_recipe
+from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df, get_connection
 import time
 from st_paywall import add_auth
+
+get_connection()
 
 # Inicjalizacja konfiguracji strony
 st.set_page_config(page_title="Recipes.io", layout="centered")
 st.title(":green[Chatbot] 🍽️")
 
 with st.sidebar:
+    if st.session_state.get('email'):
+        st.write(f"Zalogowano jako: {st.session_state['email']}")
+
+        usage_df = get_current_month_usage_df(st.session_state['email'])
+        st.write("Obecne zużycie")
+        c0, c1 = st.columns([1, 1])
+        with c0:
+            st.metric("Input tokenów", usage_df['input_tokens'].sum())
+        with c1:
+            st.metric("Output tokenów", usage_df['output_tokens'].sum())
+
     st.write("Więcej informacji:")
-    st.link_button("Polityka prywatnośći", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
+    st.link_button("Polityka prywatności", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
     st.link_button("Regulamin", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/regulations.pdf")
     st.write("Kontakt: ks.kontaktowy7@gmail.com")
     st.write("Podoba ci się aplikacja? wesprzyj nas link poniżej:")
     st.link_button("🥰", "https://buymeacoffee.com/kacperszaruga", use_container_width=True)
-
-    if st.session_state.get('email'):
-        st.write(f"Zalogowano jako: {st.session_state['email']}")
-
-    # Display token usage
-    if "token_usage" in st.session_state:
-        st.write(f"Zużycie tokenów: {st.session_state['token_usage']}")
 
 try:
     add_auth(
@@ -66,18 +72,27 @@ if st.session_state.get('email'):
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
+
             response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
                 stream=True,
+            ) 
+            usage = {}
+            if response.usage:
+                usage = {
+                    "completion_tokens": response.usage.completion_tokens,
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "total_tokens": response.usage.total_tokens,
+                }
+            insert_usage(
+                email=st.session_state['email'],
+                output_tokens=usage['completion_tokens'],
+                input_tokens=usage['prompt_tokens'],
+                input_text=user_prompt           
             )
 
-            # Calculate token usage
-            input_tokens = sum(len(m["content"].split()) for m in messages)
-            output_tokens = len(response["choices"][0]["message"]["content"].split())
-            st.session_state["token_usage"] = f"Input: {input_tokens}, Output: {output_tokens}"
-
-            return response
+            return response              
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
