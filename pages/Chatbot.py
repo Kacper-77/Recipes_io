@@ -20,6 +20,21 @@ def get_connection():
     )
 
 
+with get_connection() as conn:
+    with conn.cursor() as cur:
+        cur.execute("""
+CREATE TABLE IF NOT EXISTS usages (
+    id SERIAL PRIMARY KEY,
+    google_user_email VARCHAR(255),
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    output_tokens INTEGER,
+    input_tokens INTEGER,
+    input_text TEXT
+)
+        """)
+        conn.commit()
+
+
 # Inicjalizacja konfiguracji strony
 st.set_page_config(page_title="Recipes.io", layout="centered")
 st.title(":green[Chatbot] 🍽️")
