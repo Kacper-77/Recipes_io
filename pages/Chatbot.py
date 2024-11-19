@@ -35,8 +35,6 @@ CREATE TABLE IF NOT EXISTS usages (
         conn.commit()
 
 
-# Inicjalizacja konfiguracji strony
-st.set_page_config(page_title="Recipes.io", layout="centered")
 st.title(":green[Chatbot] 🍽️")
 
 with st.sidebar:

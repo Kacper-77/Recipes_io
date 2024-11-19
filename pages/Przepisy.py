@@ -5,7 +5,6 @@ from st_paywall import add_auth
 
 init_db()
 
-st.set_page_config(page_title="Recipes.io", layout="centered")
 st.title(":orange[Twoje przepisy] 🍜")
 
 with st.sidebar:
