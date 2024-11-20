@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS usages (
         """)
         conn.commit()
 
-
 st.title(":green[Chatbot] 🍽️")
 
 with st.sidebar:
@@ -101,23 +100,27 @@ if st.session_state.get('email'):
             response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
-                stream=True,
-            ) 
-            usage = {}
+            )
+            usage = {}       
             if response.usage:
                 usage = {
                     "completion_tokens": response.usage.completion_tokens,
                     "prompt_tokens": response.usage.prompt_tokens,
                     "total_tokens": response.usage.total_tokens,
                 }
+
             insert_usage(
                 email=st.session_state['email'],
                 output_tokens=usage['completion_tokens'],
                 input_tokens=usage['prompt_tokens'],
-                input_text=user_prompt           
+                input_text=user_prompt,
             )
 
-            return response              
+            return {
+                "role": "assistant",
+                "content": response.choices[0].message.content,
+                "usage": usage
+            }
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
@@ -128,7 +131,7 @@ if st.session_state.get('email'):
 
         # Przechowujemy stan widoczności sekcji zapisu
         if "show_save_section" not in st.session_state:
-            st.session_state["show_save_section"] = False 
+            st.session_state["show_save_section"] = False
 
         st.header(":orange[Aktualna konwersacja] 💬")
 
