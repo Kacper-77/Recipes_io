@@ -92,41 +92,23 @@ if st.session_state.get('email'):
                     """
                 },
             ]
-            
             for message in memory:
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
 
-            # Zmienna do przechowywania zużycia tokenów
-            usage = {
-                "completion_tokens": 0,
-                "prompt_tokens": 0,
-                "total_tokens": 0
-            }
-            
             response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
-                stream=True,
             )
+            usage = {}       
+            if response.usage:
+                usage = {
+                    "completion_tokens": response.usage.completion_tokens,
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "total_tokens": response.usage.total_tokens,
+                }
 
-            # Iterowanie przez odpowiedź strumieniowaną
-            assistant_message = ""
-            for chunk in response:
-                # Wydobycie treści odpowiedzi
-                if "choices" in chunk:
-                    for choice in chunk["choices"]:
-                        if "message" in choice:
-                            assistant_message += choice["message"]["content"]
-
-                # Zbieranie danych o zużyciu tokenów
-                if "usage" in chunk:
-                    usage["completion_tokens"] += chunk["usage"].get("completion_tokens", 0)
-                    usage["prompt_tokens"] += chunk["usage"].get("prompt_tokens", 0)
-                    usage["total_tokens"] += chunk["usage"].get("total_tokens", 0)
-
-            # Zapisanie zużycia tokenów do bazy danych
             insert_usage(
                 email=st.session_state['email'],
                 output_tokens=usage['completion_tokens'],
@@ -134,7 +116,7 @@ if st.session_state.get('email'):
                 input_text=user_prompt,
             )
 
-            return assistant_message
+            return response, usage
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
@@ -166,7 +148,7 @@ if st.session_state.get('email'):
 
             chatbot_response = get_chatbot_reply(prompt, memory=st.session_state["messages"][-10:])
             with st.chat_message("assistant"):
-                assistant_message = st.write(chatbot_response)
+                assistant_message = st.write_stream(chatbot_response)
                 st.session_state["chatbot_reply"] = assistant_message
 
             st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
