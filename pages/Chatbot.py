@@ -125,11 +125,7 @@ if st.session_state.get('email'):
                 input_text=user_prompt,
             )
 
-            return {
-                "role": "assistant",
-                "content": full_response,
-                "usage": usage
-            }             
+            return response            
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
