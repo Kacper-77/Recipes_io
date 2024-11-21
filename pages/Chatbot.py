@@ -2,11 +2,13 @@ import streamlit as st
 from langfuse.openai import OpenAI
 from langfuse.decorators import observe
 from dotenv import load_dotenv
-from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df
+from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df, init_db
 import time
 from st_paywall import add_auth
 import psycopg2
 
+
+init_db()
 
 @st.cache_resource
 def get_connection():
@@ -102,9 +104,32 @@ if st.session_state.get('email'):
                 model="gpt-4o",
                 messages=messages,
                 stream=True,
-            ) 
-            
-            return response              
+            )
+
+            full_response = openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+            )
+            usage = {}
+            if full_response.usage:
+                usage{
+                    "completion_tokens": full_response.usage.completion_tokens,
+                    "prompt_tokens": full_response.usage.prompt_tokens,
+                    "total_tokens": full_response.usage.total_tokens,
+                }
+
+            insert_usage(
+                email=st.session_state['email'],
+                output_tokens=usage['completion_tokens'],
+                input_tokens=usage['prompt_tokens'],
+                input_text=user_prompt,
+            )
+
+            return {
+                "role": "assistant",
+                "content": response,
+                "usage": usage
+            }             
 
         # Inicjalizacja stanu sesji dla konwersacji
         if "messages" not in st.session_state:
