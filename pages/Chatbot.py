@@ -112,7 +112,7 @@ if st.session_state.get('email'):
             )
             usage = {}
             if full_response.usage:
-                usage{
+                usage = {
                     "completion_tokens": full_response.usage.completion_tokens,
                     "prompt_tokens": full_response.usage.prompt_tokens,
                     "total_tokens": full_response.usage.total_tokens,
