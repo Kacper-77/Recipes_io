@@ -126,7 +126,6 @@ if st.session_state.get('email'):
             )
 
             return {
-                "role": "assistant",
                 "content": response,
                 "usage": usage
             }             
