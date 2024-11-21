@@ -12,8 +12,11 @@ with st.sidebar:
         st.write(f"Zalogowano jako: {st.session_state['email']}")
 
     st.write("Więcej informacji:")
-    st.link_button("Polityka prywatności", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
-    st.link_button("Regulamin", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/regulations.pdf")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.link_button("Polityka prywatności", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/privacy_policy.pdf")
+    with col2:
+        st.link_button("Regulamin", "https://recipes-io-asstes.fra1.cdn.digitaloceanspaces.com/regulations.pdf")
     st.write("Kontakt: ks.kontaktowy7@gmail.com")
     st.write("Podoba ci się aplikacja? wesprzyj nas link poniżej:")
     st.link_button("🥰", "https://buymeacoffee.com/kacperszaruga", use_container_width=True)
