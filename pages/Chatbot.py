@@ -162,10 +162,12 @@ if st.session_state.get('email'):
 
             st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
 
-            # Automatyczne zapisywanie konwersacji w bazie danych
+            # Zapisywanie konwersacji w bazie danych
             save_conversation(f"Konwersacja {len(st.session_state['messages']) // 2}", st.session_state["messages"])
 
-        # Jeżeli chatbot odpowiedział, pokaż możliwość zapisania przepisu lub diety (ale nie porady)
+        if "show_save_section" not in st.session_state:
+            st.session_state["show_save_section"] = False
+
         if st.session_state["chatbot_reply"]:
             if st.button("🍕"):
                 st.session_state["show_save_section"] = not st.session_state["show_save_section"]
