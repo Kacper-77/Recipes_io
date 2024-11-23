@@ -168,6 +168,9 @@ if st.session_state.get('email'):
         # Jeżeli chatbot odpowiedział, pokaż możliwość zapisania przepisu lub diety (ale nie porady)
         if st.session_state["chatbot_reply"]:
             if st.button("🍕"):
+                st.session_state["show_save_section"] = not st.session_state["show_save_section"]
+
+            if st.session_state["show_save_section"]:
                 st.subheader("Zapisz przepis lub dietę")
                 recipe_name = st.text_input("Podaj nazwę przepisu/diety", key="recipe_name_input")
 
