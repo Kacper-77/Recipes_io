@@ -65,18 +65,20 @@ def save_recipe(name, content, user_email):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO recipes (name, content, user_email) 
-                VALUES (%s, %s, %s);
+                INSERT INTO recipes (name, content, user_email)
+                VALUES (%s, %s, %s)
             """, (name, content, user_email))
             conn.commit()
 
 
-# Funkcja do pobierania przepisów dla zalogowanego użytkownika
+# Funkcja do pobierania przepisów przypisanych do użytkownika
 def get_recipes(user_email):
     with get_connection() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute("""
-                SELECT * FROM recipes WHERE user_email = %s;
+                SELECT id, name, content FROM recipes
+                WHERE user_email = %s
+                ORDER BY id DESC
             """, (user_email,))
             recipes = cur.fetchall()
     return recipes
@@ -86,9 +88,7 @@ def get_recipes(user_email):
 def delete_recipe(recipe_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
-                DELETE FROM recipes WHERE id = %s;
-            """, (recipe_id,))
+            cur.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
             conn.commit()
 
 
