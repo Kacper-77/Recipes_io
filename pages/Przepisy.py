@@ -33,10 +33,10 @@ if st.session_state.get('email'):
     # Formularz dodawania nowego przepisu ręcznie
     recipe_name = st.text_input("Nazwa przepisu")
     recipe_content = st.text_area("Treść przepisu")
-
+    user_email = st.session_state.get('email')
     if st.button("Dodaj przepis"):
         if recipe_name and recipe_content:
-            save_recipe(recipe_name, recipe_content)
+            save_recipe(recipe_name, recipe_content, user_email)
             message = st.toast("Zapisano! 🎊")
 
             time.sleep(2)
