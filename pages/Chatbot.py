@@ -2,12 +2,15 @@ import streamlit as st
 from langfuse.openai import OpenAI
 from langfuse.decorators import observe
 from dotenv import load_dotenv
-from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df
+from db import save_conversation, save_recipe, insert_usage, get_current_month_usage_df, init_db
 import time
 from st_paywall import add_auth
 import psycopg2
 
+init_db()
 
+
+# Łączenie z bazą danych
 @st.cache_resource
 def get_connection():
     return psycopg2.connect(
@@ -20,21 +23,22 @@ def get_connection():
     )
 
 
+# Tworzenie tabeli dla danych o użytkowaniu
 with get_connection() as conn:
     with conn.cursor() as cur:
         cur.execute("""
-CREATE TABLE IF NOT EXISTS usages (
-    id SERIAL PRIMARY KEY,
-    google_user_email VARCHAR(255),
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    output_tokens INTEGER,
-    input_tokens INTEGER,
-    input_text TEXT
-)
+        CREATE TABLE IF NOT EXISTS usages (
+            id SERIAL PRIMARY KEY,
+            google_user_email VARCHAR(255),
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            output_tokens INTEGER,
+            input_tokens INTEGER,
+            input_text TEXT
+        )
         """)
         conn.commit()
 
-
+# UI sekcji boku
 st.title(":green[Chatbot] 🍽️")
 
 with st.sidebar:
@@ -59,16 +63,14 @@ with st.sidebar:
     st.write("Podoba ci się aplikacja? wesprzyj nas link poniżej:")
     st.link_button("🥰", "https://buymeacoffee.com/kacperszaruga", use_container_width=True)
 
+# Obsługa logowania
 try:
-    add_auth(
-        required=False,
-        login_sidebar=False,
-    )
+    add_auth(required=False, login_sidebar=False)
 except KeyError:
     pass
 
 if st.session_state.get('email'):
-    # Wprowadzenie klucza API OpenAI
+    # Inicjalizacja klucza API OpenAI
     if "api_key" not in st.session_state:
         st.session_state.api_key = ""
 
@@ -80,27 +82,26 @@ if st.session_state.get('email'):
         # Ładowanie zmiennych środowiskowych
         load_dotenv()
 
-    # Inicjalizacja klienta OpenAI
+        # Inicjalizacja klienta OpenAI
         openai_client = OpenAI(api_key=st.session_state.api_key)
 
+        # Funkcja obserwująca odpowiedzi chatbota
         @observe
         def get_chatbot_reply(user_prompt, memory):
             messages = [
-                {
-                    "role": "system",
-                    "content": """
-                        Jesteś ekspertem do spraw dietetyki,
-                        przepisów i wszystkiego co z tym związane.
-                        Wyliczaj makro dla każdego z dań i podawaj w przybliżeniu
-                        kaloryczność. Odpowiadaj na pytania użytkownika w sposób zrozumiały.
-                    """
-                },
+                {"role": "system", "content": """
+                    Jesteś ekspertem do spraw dietetyki,
+                    przepisów i wszystkiego co z tym związane.
+                    Wyliczaj makro dla każdego z dań i podawaj w przybliżeniu
+                    kaloryczność. Odpowiadaj na pytania użytkownika w sposób zrozumiały.
+                """}
             ]
             for message in memory:
                 messages.append({"role": message["role"], "content": message["content"]})
 
             messages.append({"role": "user", "content": user_prompt})
 
+            # Strumieniowanie odpowiedzi chatbota
             response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages,
@@ -111,6 +112,7 @@ if st.session_state.get('email'):
                 model="gpt-4o",
                 messages=messages,
             )
+
             usage = {}
             if full_response.usage:
                 usage = {
@@ -135,10 +137,7 @@ if st.session_state.get('email'):
         if "chatbot_reply" not in st.session_state:
             st.session_state["chatbot_reply"] = ""
 
-        # Przechowujemy stan widoczności sekcji zapisu
-        if "show_save_section" not in st.session_state:
-            st.session_state["show_save_section"] = False 
-
+        # Sekcja konwersacji
         st.header(":orange[Aktualna konwersacja] 💬")
 
         for message in st.session_state["messages"]:
@@ -177,7 +176,7 @@ if st.session_state.get('email'):
 
                 if st.button("Zapisz"):
                     if recipe_name:
-                        save_recipe(recipe_name, st.session_state["chatbot_reply"])
+                        save_recipe(recipe_name, st.session_state["chatbot_reply"], st.session_state["email"])
                         info = st.toast("Zapisano! 🎊")
                         time.sleep(2)
                         info.empty()

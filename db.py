@@ -1,5 +1,4 @@
 import psycopg2
-from psycopg2.extras import RealDictCursor
 from datetime import datetime, timezone
 import pandas as pd
 import streamlit as st
@@ -54,7 +53,7 @@ def save_conversation(name, messages):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO conversations (name, messages) 
+                INSERT INTO conversations (name, messages)
                 VALUES (%s, %s);
             """, (name, str(messages)))
             conn.commit()
