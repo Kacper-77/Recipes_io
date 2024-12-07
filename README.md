@@ -1,6 +1,6 @@
-W pełni funkcjonalna aplikacja dzięki której twoje życie może stać się lepsze ze względu na zdrowsze odżywianie i większą świadomość odnośnie żywienia.
+A fully functional application that can make your life better by promoting healthier eating and greater awareness of nutrition.
 
 Link: https://recipes-io.streamlit.app/
 
-UWAGA: Aplikacja ma aktualnie dezaktywowaną baze danych (żeby uniknąć dodatkowych kosztów) przez co nie działa. Jeśli chcesz z niej skorzystać napisz do mnie na maila i po chwili ją aktywuję.
-Adres mailowy: ks.kontaktowy7@gmail.com
+NOTE: The database is currently deactivated (to avoid additional costs), so the app is not functioning at the moment. If you’d like to use it, please email me, and I’ll activate it shortly.
+Email address: ks.kontaktowy7@gmail.com
