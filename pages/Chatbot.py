@@ -65,7 +65,7 @@ with st.sidebar:
 
 # Obsługa logowania
 try:
-    add_auth(required=False, login_sidebar=False)
+    add_auth(required=False)
 except KeyError:
     pass
 
