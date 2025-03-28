@@ -28,7 +28,6 @@ with st.sidebar:
 try:
     add_auth(
         required=False,
-        login_sidebar=False,
     )
 except KeyError:
     pass
