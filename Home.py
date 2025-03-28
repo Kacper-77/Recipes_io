@@ -49,7 +49,6 @@ To tyle życzymy :red[**SMACZNEGO**]!
 try:
     add_auth(
         required=False,
-        login_sidebar=False,
     )
 except KeyError:
     pass
